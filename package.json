@@ -1,0 +1,14 @@
+{
+  "name": "streamutil",
+  "version": "0.0.0",
+  "description": "Convenient Streams",
+  "main": "index.js",
+  "scripts": {
+  },
+  "author": "daengdaenglee",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daengdaengLee/streamutil.git"
+  }
+}
