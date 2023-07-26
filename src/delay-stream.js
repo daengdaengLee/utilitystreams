@@ -1,17 +1,5 @@
 const { Transform } = require("node:stream");
-
-/**
- *
- * @param {number} waitMs
- * @returns {Promise<void>}
- */
-function delay(waitMs) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, waitMs);
-  });
-}
+const { delay } = require("./util");
 
 exports.DelayStream = class DelayStream extends Transform {
   /**
@@ -26,13 +14,13 @@ exports.DelayStream = class DelayStream extends Transform {
   }
 
   _transform(chunk, encoding, callback) {
-    this.lastTransform = Promise.all([delay(this.waitMs), this.lastTransform])
-      .then(() => {
-        callback(null, chunk);
-      })
-      .catch((error) => {
-        callback(error);
-      });
+    this.lastTransform = Promise.all([
+      delay(this.waitMs),
+      this.lastTransform,
+    ]).then(() => {
+      this.push(chunk, encoding);
+    });
+    callback();
   }
 
   _flush(callback) {
