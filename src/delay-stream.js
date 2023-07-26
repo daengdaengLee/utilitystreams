@@ -1,17 +1,5 @@
 const { Transform } = require("node:stream");
-
-/**
- *
- * @param {number} waitMs
- * @returns {Promise<void>}
- */
-function delay(waitMs) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, waitMs);
-  });
-}
+const { delay } = require("./util");
 
 exports.DelayStream = class DelayStream extends Transform {
   /**
