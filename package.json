@@ -8,7 +8,10 @@
   "scripts": {
     "test": "jest"
   },
-  "author": "daengdaenglee",
+  "author": {
+    "name": "daengdaenglee",
+    "email": "gunho1020@gmail.com"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
