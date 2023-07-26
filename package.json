@@ -5,7 +5,9 @@
   "module": "./esm/index.js",
   "version": "0.0.0",
   "description": "Convenient Streams",
-  "scripts": {},
+  "scripts": {
+    "test": "jest"
+  },
   "author": "daengdaenglee",
   "license": "MIT",
   "repository": {
