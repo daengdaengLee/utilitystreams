@@ -14,13 +14,13 @@ exports.DelayStream = class DelayStream extends Transform {
   }
 
   _transform(chunk, encoding, callback) {
-    this.lastTransform = Promise.all([delay(this.waitMs), this.lastTransform])
-      .then(() => {
-        callback(null, chunk);
-      })
-      .catch((error) => {
-        callback(error);
-      });
+    this.lastTransform = Promise.all([
+      delay(this.waitMs),
+      this.lastTransform,
+    ]).then(() => {
+      this.push(chunk, encoding);
+    });
+    callback();
   }
 
   _flush(callback) {
