@@ -17,7 +17,7 @@ export class DelayStream extends Transform {
   /**
    *
    * @param {number} waitMs
-   * @param {TransformOptions} [options]
+   * @param {import("node:stream").TransformOptions} [options]
    */
   constructor(waitMs, options) {
     super(options);
