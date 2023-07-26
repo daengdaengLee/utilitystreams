@@ -13,7 +13,7 @@ function delay(waitMs) {
   });
 }
 
-export class DelayStream extends Transform {
+exports.DelayStream = class DelayStream extends Transform {
   /**
    *
    * @param {number} waitMs
@@ -40,4 +40,4 @@ export class DelayStream extends Transform {
       callback();
     });
   }
-}
+};
