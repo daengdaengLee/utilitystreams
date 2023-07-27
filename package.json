@@ -3,6 +3,7 @@
   "type": "commonjs",
   "main": "./cjs/index.js",
   "module": "./esm/index.js",
+  "types": "./cjs/index.d.ts",
   "version": "0.1.2",
   "description": "Convenient Streams",
   "scripts": {
