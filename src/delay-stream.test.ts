@@ -4,16 +4,16 @@ import { DelayStream } from "./delay-stream.js";
 import { delay } from "./util.js";
 
 class ToArrayStream extends Writable {
-  private readonly acc: Array<any>;
-
-  constructor(acc: Array<any>, options?: WritableOptions) {
+  constructor(
+    private readonly acc: Array<any>,
+    options?: WritableOptions,
+  ) {
     super(options);
-    this.acc = acc;
   }
 
   _write(
     chunk: unknown,
-    encoding: BufferEncoding,
+    _encoding: BufferEncoding,
     callback: (error?: Error | null) => void,
   ) {
     this.acc.push(chunk);
