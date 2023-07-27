@@ -3,16 +3,14 @@ import { Task } from "./type.js";
 import { delay } from "./util.js";
 
 export class DelayStream extends Transform {
+  private readonly waitMs: number;
   private readonly queue: Array<Task>;
   private flushCallback: TransformCallback | null;
 
-  constructor(
-    private readonly waitMs: number,
-    options?: TransformOptions,
-  ) {
-    super(options);
+  constructor(options1: { waitMs: number }, options2?: TransformOptions) {
+    super(options2);
 
-    this.waitMs = waitMs;
+    this.waitMs = options1.waitMs;
     this.queue = [];
     this.flushCallback = null;
   }

@@ -23,8 +23,8 @@ describe(`DebounceStream Test`, () => {
           yield Buffer.from([6]);
         })(),
       ),
-      new DebounceStream(waitMs),
-      new ToArrayStream(outputData),
+      new DebounceStream({ waitMs: waitMs }),
+      new ToArrayStream({ target: outputData }),
     );
 
     expect(outputData).toEqual([Buffer.from([3]), Buffer.from([6])]);

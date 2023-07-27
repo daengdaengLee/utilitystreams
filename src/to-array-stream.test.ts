@@ -7,7 +7,10 @@ describe(`ToArrayStream Test`, () => {
     const inputData = [Buffer.from([1]), Buffer.from([2]), Buffer.from([3])];
     const outputData: Array<Buffer> = [];
 
-    await pipeline(Readable.from(inputData), new ToArrayStream(outputData));
+    await pipeline(
+      Readable.from(inputData),
+      new ToArrayStream({ target: outputData }),
+    );
 
     expect(outputData).toEqual(inputData);
   });
@@ -18,7 +21,10 @@ describe(`ToArrayStream Test`, () => {
 
     await pipeline(
       Readable.from(inputData),
-      new ToArrayStream(outputData, true, { objectMode: true }),
+      new ToArrayStream(
+        { target: outputData, includeEncoding: true },
+        { objectMode: true },
+      ),
     );
 
     expect(
@@ -35,7 +41,7 @@ describe(`ToArrayStream Test`, () => {
     const inputData = [Buffer.from([1]), Buffer.from([2]), Buffer.from([3])];
     const outputData: Array<Buffer> = [];
 
-    const toArrayStream = new ToArrayStream(outputData);
+    const toArrayStream = new ToArrayStream({ target: outputData });
     await pipeline(Readable.from(inputData), toArrayStream);
 
     expect(outputData).toBe(toArrayStream.toArray());

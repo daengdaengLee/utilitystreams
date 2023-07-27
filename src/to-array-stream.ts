@@ -1,12 +1,17 @@
 import { Writable, WritableOptions } from "node:stream";
 
 export class ToArrayStream extends Writable {
+  private readonly target: Array<any>;
+  private readonly includeEncoding: boolean;
+
   constructor(
-    private readonly acc: Array<any>,
-    private readonly includeEncoding: boolean = false,
-    options?: WritableOptions,
+    options1?: { target: Array<any>; includeEncoding?: boolean },
+    options2?: WritableOptions,
   ) {
-    super(options);
+    super(options2);
+
+    this.target = options1?.target ?? [];
+    this.includeEncoding = options1?.includeEncoding ?? false;
   }
 
   _write(
@@ -15,14 +20,14 @@ export class ToArrayStream extends Writable {
     callback: (error?: Error | null) => void,
   ) {
     if (this.includeEncoding) {
-      this.acc.push({ chunk: chunk, encoding: encoding });
+      this.target.push({ chunk: chunk, encoding: encoding });
     } else {
-      this.acc.push(chunk);
+      this.target.push(chunk);
     }
     callback();
   }
 
   toArray(): Array<any> {
-    return this.acc;
+    return this.target;
   }
 }

@@ -13,8 +13,8 @@ describe(`DelayStream Test`, () => {
 
     await pipeline(
       Readable.from(inputData),
-      new DelayStream(10),
-      new ToArrayStream(outputData),
+      new DelayStream({ waitMs: 10 }),
+      new ToArrayStream({ target: outputData }),
     );
 
     expect(outputData).toEqual(inputData);
@@ -40,8 +40,8 @@ describe(`DelayStream Test`, () => {
           yield Buffer.from([6]);
         })(),
       ),
-      new DelayStream(waitMs),
-      new ToArrayStream([]),
+      new DelayStream({ waitMs: waitMs }),
+      new ToArrayStream(),
     );
     const end = Date.now();
     const diff = end - start;
