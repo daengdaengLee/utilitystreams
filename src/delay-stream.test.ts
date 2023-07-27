@@ -1,15 +1,21 @@
-const { Readable, Writable } = require("node:stream");
-const { pipeline } = require("node:stream/promises");
-const { DelayStream } = require("./delay-stream");
-const { delay } = require("./util");
+import { Readable, Writable, WritableOptions } from "node:stream";
+import { pipeline } from "node:stream/promises";
+import { DelayStream } from "./delay-stream.js";
+import { delay } from "./util.js";
 
 class ToArrayStream extends Writable {
-  constructor(acc, options) {
+  private readonly acc: Array<any>;
+
+  constructor(acc: Array<any>, options?: WritableOptions) {
     super(options);
     this.acc = acc;
   }
 
-  _write(chunk, encoding, callback) {
+  _write(
+    chunk: unknown,
+    encoding: BufferEncoding,
+    callback: (error?: Error | null) => void,
+  ) {
     this.acc.push(chunk);
     callback();
   }
@@ -20,7 +26,7 @@ describe(`DelayStream Test`, () => {
     const inputData = [1, 2, 3].map((a) => {
       return Buffer.from([a]);
     });
-    const outputData = [];
+    const outputData: Array<Buffer> = [];
 
     await pipeline(
       Readable.from(inputData),
