@@ -2,8 +2,8 @@ import { Transform, TransformCallback, TransformOptions } from "node:stream";
 import { Task } from "./type.js";
 import { delay } from "./util.js";
 
-export class DelayStream extends Transform {
-  private readonly queue: Array<Task>;
+export class DebounceStream extends Transform {
+  private task: Task | null;
   private flushCallback: TransformCallback | null;
 
   constructor(
@@ -12,8 +12,7 @@ export class DelayStream extends Transform {
   ) {
     super(options);
 
-    this.waitMs = waitMs;
-    this.queue = [];
+    this.task = null;
     this.flushCallback = null;
   }
 
@@ -26,7 +25,7 @@ export class DelayStream extends Transform {
       done: false,
       value: { chunk: chunk, encoding: encoding },
     };
-    this.queue.push(task);
+    this.task = task;
     delay(this.waitMs).then(() => {
       task.done = true;
       this.tick();
@@ -40,14 +39,12 @@ export class DelayStream extends Transform {
   }
 
   private tick(): void {
-    let task = this.queue.at(0);
-    while (task != null && task.done) {
-      this.push(task.value.chunk, task.value.encoding);
-      this.queue.shift();
-      task = this.queue.at(0);
+    if (this.task !== null && this.task.done) {
+      this.push(this.task.value.chunk, this.task.value.encoding);
+      this.task = null;
     }
 
-    if (this.queue.length === 0 && this.flushCallback !== null) {
+    if (this.task === null && this.flushCallback !== null) {
       this.flushCallback();
     }
   }
