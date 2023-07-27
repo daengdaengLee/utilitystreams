@@ -114,3 +114,11 @@ dist
 
 # IDE
 .idea/
+
+# Build
+/cjs/*
+!/cjs/package.json
+!/cjs/tsconfig.json
+/esm/*
+!/esm/package.json
+!/esm/tsconfig.json

@@ -1,11 +1,14 @@
 {
   "name": "utilitystreams",
   "type": "commonjs",
-  "main": "./src/index.js",
+  "main": "./cjs/index.js",
   "module": "./esm/index.js",
   "version": "0.1.2",
   "description": "Convenient Streams",
   "scripts": {
+    "build:cjs": "tsc --p ./cjs/tsconfig.json",
+    "build:esm": "tsc --p ./esm/tsconfig.json",
+    "build": "npm run build:cjs && npm run build:esm",
     "test": "jest"
   },
   "author": {
@@ -19,9 +22,18 @@
   },
   "exports": {
     ".": {
-      "require": "./src/index.js",
-      "import": "./esm/index.js"
+      "require": {
+        "types": "./cjs/index.d.ts",
+        "default": "./cjs/index.js"
+      },
+      "import": {
+        "types": "./esm/index.d.ts",
+        "default": "./esm/index.js"
+      }
     }
+  },
+  "engines": {
+    "node": ">=18"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.0",
