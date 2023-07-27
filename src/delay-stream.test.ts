@@ -1,25 +1,8 @@
-import { Readable, Writable, WritableOptions } from "node:stream";
+import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { DelayStream } from "./delay-stream.js";
+import { ToArrayStream } from "./to-array-stream.js";
 import { delay } from "./util.js";
-
-class ToArrayStream extends Writable {
-  constructor(
-    private readonly acc: Array<any>,
-    options?: WritableOptions,
-  ) {
-    super(options);
-  }
-
-  _write(
-    chunk: unknown,
-    _encoding: BufferEncoding,
-    callback: (error?: Error | null) => void,
-  ) {
-    this.acc.push(chunk);
-    callback();
-  }
-}
 
 describe(`DelayStream Test`, () => {
   it(`input data is not changed including it's order.`, async () => {
