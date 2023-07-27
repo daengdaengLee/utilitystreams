@@ -4,7 +4,7 @@
   "main": "./cjs/index.js",
   "module": "./esm/index.js",
   "types": "./cjs/index.d.ts",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Convenient Streams",
   "scripts": {
     "clean:cjs": "tsc --build ./cjs/tsconfig.json --clean",
