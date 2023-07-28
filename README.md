@@ -61,4 +61,28 @@ await pipeline(
 
 ### DebounceStream
 
+Outputs only the last of the input data for the set time period.
+
+```typescript
+import { DebounceStream } from "utilitystreams";
+
+await pipeline(
+  process.stdin,
+  new DebounceStream({ waitMs: 100 }),
+  process.stdout,
+);
+```
+
 ### ThrottleStream
+
+Ignore other input data for the time you set after the data output.
+
+```typescript
+import { ThrottleStream } from "utilitystreams";
+
+await pipeline(
+  process.stdin,
+  new ThrottleStream({ waitMs: 100 }),
+  process.stdout,
+);
+```
