@@ -25,13 +25,6 @@ describe(`TakeStream Test`, () => {
     expect(outputs).toEqual(inputs.slice(0, n));
   });
 
-  /**
-   *
-   * This case is only used when the source readable should be destroyed.
-   * It's very hard to "end" the stream "pipeline" in the middle.
-   * So, I prepare a callback function to do end the source readable stream.
-   * You have to prepare some error handling from destroy call or call some custom stop logic.
-   */
   it(`done() when n-th data transformed.`, async () => {
     const n = 2;
 
