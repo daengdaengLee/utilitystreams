@@ -5,10 +5,10 @@ export class ThrottleStream extends Transform {
   private readonly waitMs: number;
   private isBlocked: boolean;
 
-  constructor(option1: { waitMs: number }, option2?: TransformOptions) {
-    super(option2);
+  constructor(options1: { waitMs: number }, options2?: TransformOptions) {
+    super(options2);
 
-    this.waitMs = option1.waitMs;
+    this.waitMs = options1.waitMs;
     this.isBlocked = false;
   }
 
