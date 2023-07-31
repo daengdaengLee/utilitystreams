@@ -87,6 +87,35 @@ await pipeline(
 );
 ```
 
+### MapStream
+
+Make output data from input data using the mapper function.
+
+- If the input data is a promise, it will be resolved before passed into the mapper function.
+- If the output data is a promise, it will be resolved before push (passed to the next stream).
+- No concurrency. If you want a concurrent processing, you should change the input data as a collection of data manually.
+
+```typescript
+import { MapStream } from "utilitystreams";
+
+await pipeline(
+  process.stdout,
+  new MapStream(
+    {
+      f: (message: string) => {
+        const logObj = {
+          timestamp: new Date().toISOString(),
+          message: message,
+        };
+        return JSON.stringify(logObj);
+      },
+    },
+    { objectMode: true },
+  ),
+  createWriteStream("/path/to/file.log"),
+);
+```
+
 ### TakeStream
 
 Take only n data from the input data.
