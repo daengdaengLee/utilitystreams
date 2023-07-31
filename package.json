@@ -4,7 +4,7 @@
   "main": "./cjs/index.js",
   "module": "./esm/index.js",
   "types": "./cjs/index.d.ts",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Convenient Streams",
   "scripts": {
     "format": "prettier ./src --write",
