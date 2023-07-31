@@ -27,6 +27,24 @@ app.use("/stream-req", async (req, res) => {
 
 All stream have test files. Detailed usage can be found in the test file.
 
+### BufferStream
+
+Collect the input data into an array.
+
+Outputs the array of collected data if
+- the length of the array is same with the set size.
+- after the set waitMs (only if you set waitMs option)
+
+```typescript
+import { BufferStream } from "utilitystreams";
+
+await pipeline(
+  process.stdout,
+  new BufferStream({ size: 100, waitMs: 1000 }, { objectMode: true }),
+  saveToDbStream,
+);
+```
+
 ### ToArrayStream
 
 Collects the input data into an array.
