@@ -71,7 +71,15 @@ export class BufferStream extends Transform {
 
   private tick(): void {
     if (this.buffer.length > 0) {
-      this.push(this.buffer);
+      if (this.includeEncoding) {
+        this.push(this.buffer);
+      } else {
+        this.push(
+          this.buffer.map((data) => {
+            return data.chunk;
+          }),
+        );
+      }
       this.buffer = [];
     }
 
