@@ -1,11 +1,6 @@
 import { Transform, TransformCallback, TransformOptions } from "node:stream";
 
-type Data = { chunk: unknown; encoding?: BufferEncoding };
-
-type Mapper = (
-  chunk: unknown,
-  encoding: BufferEncoding,
-) => Data | Promise<Data>;
+type Mapper = (chunk: any, encoding: BufferEncoding) => any;
 
 export class MapStream extends Transform {
   private readonly f: Mapper;
@@ -21,35 +16,22 @@ export class MapStream extends Transform {
     encoding: BufferEncoding,
     callback: TransformCallback,
   ): void {
-    let transformed: Data | Promise<Data>;
-    try {
-      transformed = this.f(chunk, encoding);
-    } catch (error) {
-      if (error instanceof Error) {
-        callback(error);
-      } else {
-        callback(new Error(`failed to transform.`));
+    (async () => {
+      let transformed: unknown;
+      try {
+        transformed = await this.f(await chunk, encoding);
+      } catch (error) {
+        if (error instanceof Error) {
+          callback(error);
+        } else {
+          callback(new Error(`failed to transform.`));
+        }
+        return;
       }
-      return;
-    }
 
-    if (transformed instanceof Promise) {
-      transformed
-        .then((transformed) => {
-          this.push(transformed.chunk, transformed.encoding);
-          callback();
-        })
-        .catch((error) => {
-          if (error instanceof Error) {
-            callback(error);
-          } else {
-            callback(new Error(`failed to transform.`));
-          }
-        });
-    } else {
-      this.push(transformed.chunk, transformed.encoding);
+      this.push(transformed);
       callback();
-    }
+    })();
   }
 
   _flush(callback: TransformCallback): void {
