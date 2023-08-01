@@ -32,6 +32,7 @@ All stream have test files. Detailed usage can be found in the test file.
 Collect the input data into an array.
 
 Outputs the array of collected data if
+
 - the length of the array is same with the set size.
 - after the set waitMs (only if you set waitMs option)
 
@@ -131,6 +132,31 @@ await pipeline(
     { objectMode: true },
   ),
   createWriteStream("/path/to/file.log"),
+);
+```
+
+### FilterStream
+
+Filter input data only passed by the predicate function.
+
+- If the input data is a promise, it will be resolved before passed into the predicate function.
+- If the predicate result is a promise, it will be resolved before push the data (passed to the next stream).
+- No concurrency. If you want a concurrent processing, you should change the input data as a collection of data manually.
+
+```typescript
+import { FilterStream } from "utilitystreams";
+
+await pipeline(
+  naturalNumbers,
+  new FilterStream(
+    {
+      f: (num: number): boolean => {
+        return num % 2 === 0;
+      },
+    },
+    { objectMode: true },
+  ),
+  createWriteStream("/even-nums"),
 );
 ```
 
