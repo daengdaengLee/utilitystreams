@@ -1,6 +1,13 @@
 import { Transform, TransformCallback, TransformOptions } from "node:stream";
-import { Task } from "./type.js";
 import { delay } from "./util.js";
+
+type Task = {
+  done: boolean;
+  value: {
+    chunk: unknown;
+    encoding: BufferEncoding;
+  };
+};
 
 export class DelayStream extends Transform {
   private readonly waitMs: number;
