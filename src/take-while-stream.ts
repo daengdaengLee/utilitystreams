@@ -33,7 +33,7 @@ export class TakeWhileStream extends Transform {
 
     (async () => {
       try {
-        this.isEnd = await this.f(await chunk, encoding);
+        this.isEnd = !(await this.f(await chunk, encoding));
       } catch (error) {
         if (error instanceof Error) {
           callback(error);
