@@ -41,6 +41,10 @@ export class TakeStream extends Transform {
   }
 
   _flush(callback: TransformCallback) {
+    if (this.done !== null) {
+      this.done();
+      this.done = null;
+    }
     callback();
   }
 }
