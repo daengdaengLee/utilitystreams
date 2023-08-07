@@ -54,6 +54,10 @@ export class TakeWhileStream extends Transform {
   }
 
   _flush(callback: TransformCallback): void {
+    if (this.done !== null) {
+      this.done();
+      this.done = null;
+    }
     callback();
   }
 }
