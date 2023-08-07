@@ -7,12 +7,17 @@ type Predicate = (
 
 export class TakeWhileStream extends Transform {
   private readonly f: Predicate;
+  private done: (() => void) | null;
   private isEnd: boolean;
 
-  constructor(options1: { f: Predicate }, options2: TransformOptions) {
+  constructor(
+    options1: { f: Predicate; done?: () => void },
+    options2: TransformOptions,
+  ) {
     super(options2);
 
     this.f = options1.f;
+    this.done = options1.done ?? null;
     this.isEnd = false;
   }
 
@@ -40,6 +45,9 @@ export class TakeWhileStream extends Transform {
 
       if (!this.isEnd) {
         this.push(chunk, encoding);
+      } else if (this.done !== null) {
+        this.done();
+        this.done = null;
       }
       callback();
     })();
