@@ -12,7 +12,7 @@ export class TakeWhileStream extends Transform {
 
   constructor(
     options1: { f: Predicate; done?: () => void },
-    options2: TransformOptions,
+    options2?: TransformOptions,
   ) {
     super(options2);
 
