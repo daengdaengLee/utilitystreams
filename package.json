@@ -6,6 +6,10 @@
   "types": "./cjs/index.d.ts",
   "version": "0.5.0",
   "description": "Convenient Streams",
+  "keywords": [
+    "stream",
+    "utility"
+  ],
   "scripts": {
     "format": "prettier ./src --write",
     "clean:cjs": "tsc --build ./cjs/tsconfig.json --clean",
