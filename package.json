@@ -11,13 +11,14 @@
     "utility"
   ],
   "scripts": {
-    "format": "prettier ./src --write",
+    "format:write": "prettier ./src --write",
+    "format:check": "prettier ./src --check",
     "clean:cjs": "tsc --build ./cjs/tsconfig.json --clean",
     "clean:esm": "tsc --build ./esm/tsconfig.json --clean",
     "clean": "npm run clean:cjs && npm run clean:esm",
     "build:cjs": "tsc --build ./cjs/tsconfig.json",
     "build:esm": "tsc --build ./esm/tsconfig.json",
-    "build": "npm run clean && npm run format && npm run build:cjs && npm run build:esm",
+    "build": "npm run clean && npm run format:check && npm run build:cjs && npm run build:esm",
     "test": "jest"
   },
   "author": {
