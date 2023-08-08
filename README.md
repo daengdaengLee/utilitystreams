@@ -190,7 +190,7 @@ Take data while the predicate function returns true.
   - You have to prepare some error handling from destroy call or call some custom end logic.
 
 ```typescript
-import { TakeStream } from "utilitystreams";
+import { TakeWhileStream } from "utilitystreams";
 
 await pipeline(
   readableStream,
@@ -198,6 +198,30 @@ await pipeline(
   new TakeWhileStream({
     f: (chunk) => {
       return !chunk.signal;
+    },
+  }),
+  process.stdout,
+);
+```
+
+### TakeUntilStream
+
+Take data until the predicate function returns true.
+
+- **If the source readable stream is large or infinite, you should prepare some end logic.**
+  - It's very hard to "end" the stream "pipeline" in the middle.
+  - So, I prepare a callback function to do end the source readable stream.
+  - You have to prepare some error handling from destroy call or call some custom end logic.
+
+```typescript
+import { TakeUntilStream } from "utilitystreams";
+
+await pipeline(
+  readableStream,
+  // ... other streams
+  new TakeUntilStream({
+    f: (chunk) => {
+      return chunk.signal;
     },
   }),
   process.stdout,
