@@ -1,5 +1,5 @@
 import { Transform, TransformCallback, TransformOptions } from "node:stream";
-import { delay } from "./util.js"
+import { delay } from "./util.js";
 
 export class BufferStream extends Transform {
   private readonly size: number;
