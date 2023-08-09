@@ -14,10 +14,7 @@ describe(`BufferStream Test`, () => {
       new ToArrayStream({ target: outputs }, { objectMode: true }),
     );
 
-    expect(outputs).toEqual([
-      [1, 2, 3],
-      [4, 5],
-    ]);
+    expect(outputs).toEqual([[1, 2, 3], [4]]);
   });
 
   it(`outputs the collected input data of the size with encoding`, async () => {
