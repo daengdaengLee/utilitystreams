@@ -160,11 +160,29 @@ await pipeline(
 );
 ```
 
+### takeStreamFactory
+
+Create a wrapper stream that takes only at most n data from the source stream.
+
+- support curry style
+  - `takeStreamFactory({ n: 10 }, sourceStream)` -> `takeStreamFactory({ n: 10 })(sourceStream)`
+- source stream will close automatically after yields n data.
+
+```typescript
+import { TakeStreamFactory } from "utilitystreams";
+
+await pipeline(
+  takeStreamFactory({ n: 10 }, readableStream),
+  // ... other streams
+  process.stdout,
+);
+```
+
 ### TakeStream
 
 Take only n data from the input data.
 
-- **If the source readable stream is large or infinite, you should prepare some end logic.**
+- **If the source readable stream is large or infinite, you should prepare some end logic or use `TakeStreamFactory`.**
   - It's very hard to "end" the stream "pipeline" in the middle.
   - So, I prepare a callback function to do end the source readable stream.
   - You have to prepare some error handling from destroy call or call some custom end logic.
