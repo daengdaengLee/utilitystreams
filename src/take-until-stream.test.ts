@@ -1,18 +1,12 @@
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { TakeUntilStream } from "./take-until-stream.js";
+import { asyncInputs } from "./test-util/async-inputs.js";
 import { syncInputs } from "./test-util/sync-inputs.js";
 import { ToArrayStream } from "./to-array-stream.js";
 import { delay } from "./util.js";
 
 describe(`TakeUntilStream Test`, () => {
-  async function* asyncInputs() {
-    for (const n of syncInputs()) {
-      await delay(50);
-      yield n;
-      await delay(50);
-    }
-  }
   const syncF = (n: number): boolean => {
     return n >= 5;
   };
