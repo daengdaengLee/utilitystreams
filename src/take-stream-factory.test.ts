@@ -1,71 +1,95 @@
 import { Readable, PassThrough } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { takeStreamFactory } from "./take-stream-factory.js";
+import { asyncInputs } from "./test-util/async-inputs.js";
+import { syncInputs } from "./test-util/sync-inputs.js";
 import { ToArrayStream } from "./to-array-stream.js";
 
-describe(`TakeStreamFactory Test`, () => {
-  const n = 2;
-  const inputs = [1, 2, 3, 4, 5, 6];
+describe(`takeStreamFactory Test`, () => {
+  const n = 4;
+  const expected = [1, 2, 3, 4];
+  const testCases = [
+    { name: `sync data`, inputs: syncInputs },
+    { name: `async data`, inputs: asyncInputs },
+  ];
 
   describe(`outputs only the number you set and exits.`, () => {
-    it(`no currey version`, async () => {
-      const outputs: Array<number> = [];
-      await pipeline(
-        takeStreamFactory({ n: n }, Readable.from(inputs)),
-        new ToArrayStream({ target: outputs }, { objectMode: true }),
-      );
+    for (const { name, inputs } of testCases) {
+      describe(name, () => {
+        it(`no currey version`, async () => {
+          const outputs: Array<number> = [];
+          await pipeline(
+            takeStreamFactory({ n: n }, Readable.from(inputs())),
+            new ToArrayStream({ target: outputs }, { objectMode: true }),
+          );
+          expect(outputs).toEqual(expected);
+        });
 
-      expect(outputs).toEqual(inputs.slice(0, n));
-    });
-
-    it(`currey version`, async () => {
-      const outputs: Array<number> = [];
-      await pipeline(
-        takeStreamFactory({ n: n })(Readable.from(inputs)),
-        new ToArrayStream({ target: outputs }, { objectMode: true }),
-      );
-
-      expect(outputs).toEqual(inputs.slice(0, n));
-    });
+        it(`currey version`, async () => {
+          const outputs: Array<number> = [];
+          await pipeline(
+            takeStreamFactory({ n: n })(Readable.from(inputs())),
+            new ToArrayStream({ target: outputs }, { objectMode: true }),
+          );
+          expect(outputs).toEqual(expected);
+        });
+      });
+    }
   });
 
-  describe(`close source stream after at most n data yields`, () => {
-    it(`no curry version`, async () => {
-      const sourceOutputs: Array<number> = [];
-      let sourceDone = false;
-      const sourceStream = Readable.from(inputs);
-      sourceStream.on(`data`, (value) => {
-        sourceOutputs.push(value);
-      });
-      sourceStream.on(`close`, () => {
-        sourceDone = true;
-      });
-      await pipeline(
-        takeStreamFactory({ n: n }, sourceStream),
-        new PassThrough({ objectMode: true }),
-      );
+  describe(`close source stream when close wrapped stream.`, () => {
+    for (const { name, inputs } of testCases) {
+      const template = async (
+        wrappedStreamFactory: (sourceStream: Readable) => Readable,
+      ): Promise<void> => {
+        let isSourceStreamDone = false;
+        let isWrappedStreamDone = false;
+        const sourceStreamOutputsAfterWrappedStreamDone: Array<number> = [];
 
-      expect(sourceOutputs).toEqual(inputs.slice(0, n));
-      expect(sourceDone).toBeTruthy();
-    });
+        const sourceStream = Readable.from(inputs());
+        sourceStream.on(`data`, (value) => {
+          if (isWrappedStreamDone) {
+            sourceStreamOutputsAfterWrappedStreamDone.push(value);
+          }
+        });
+        const sourceStreamDone = new Promise<void>((resolve) => {
+          sourceStream.on(`close`, () => {
+            isSourceStreamDone = true;
+            resolve();
+          });
+        });
 
-    it(`curry version`, async () => {
-      const sourceOutputs: Array<number> = [];
-      let sourceDone = false;
-      const sourceStream = Readable.from(inputs);
-      sourceStream.on(`data`, (value) => {
-        sourceOutputs.push(value);
-      });
-      sourceStream.on(`close`, () => {
-        sourceDone = true;
-      });
-      await pipeline(
-        takeStreamFactory({ n: n })(sourceStream),
-        new PassThrough({ objectMode: true }),
-      );
+        const wrappedStream = wrappedStreamFactory(sourceStream);
+        const wrappedStreamDone = new Promise<void>((resolve) => {
+          wrappedStream.on(`close`, () => {
+            isWrappedStreamDone = true;
+            resolve();
+          });
+        });
 
-      expect(sourceOutputs).toEqual(inputs.slice(0, n));
-      expect(sourceDone).toBeTruthy();
-    });
+        await pipeline(wrappedStream, new PassThrough({ objectMode: true }));
+        await Promise.all([sourceStreamDone, wrappedStreamDone]);
+
+        expect(isSourceStreamDone).toBeTruthy();
+        expect(isWrappedStreamDone).toBeTruthy();
+        expect(sourceStreamOutputsAfterWrappedStreamDone.length).toEqual(0);
+      };
+
+      describe(name, () => {
+        it(`no curry version`, async () => {
+          const wrappedStreamFactory = (sourceStream: Readable): Readable => {
+            return Readable.from(takeStreamFactory({ n: n }, sourceStream));
+          };
+          await template(wrappedStreamFactory);
+        });
+
+        it(`curry version`, async () => {
+          const wrappedStreamFactory = (sourceStream: Readable): Readable => {
+            return Readable.from(takeStreamFactory({ n: n })(sourceStream));
+          };
+          await template(wrappedStreamFactory);
+        });
+      });
+    }
   });
 });
