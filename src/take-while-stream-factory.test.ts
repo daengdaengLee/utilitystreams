@@ -1,35 +1,44 @@
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
-import { takeStreamFactory } from "./take-stream-factory.js";
+import { takeWhileStreamFactory } from "./take-while-stream-factory.js";
 import { asyncInputs } from "./test-util/async-inputs.js";
 import { sourceStreamCloseTestTemplate } from "./test-util/source-stream-close-test-template.js";
 import { syncInputs } from "./test-util/sync-inputs.js";
 import { ToArrayStream } from "./to-array-stream.js";
+import { delay } from "./util.js";
 
-describe(`takeStreamFactory Test`, () => {
-  const n = 4;
-  const expected = [1, 2, 3, 4];
+describe(`takeWhileStreamFactory Test`, () => {
+  const syncF = (n: number): boolean => {
+    return n < 5;
+  };
+  const asyncF = async (n: number): Promise<boolean> => {
+    await delay(100);
+    return syncF(n);
+  };
+  const expected: Array<number> = [1, 2, 3, 4];
   const testCases = [
-    { name: `sync data`, inputs: syncInputs },
-    { name: `async data`, inputs: asyncInputs },
+    { name: `sync data + sync predicate`, f: syncF, inputs: syncInputs },
+    { name: `sync data + async predicate`, f: asyncF, inputs: syncInputs },
+    { name: `async data + sync predicate`, f: syncF, inputs: asyncInputs },
+    { name: `async data + async predicate`, f: asyncF, inputs: asyncInputs },
   ];
 
-  describe(`outputs only the number you set and exits.`, () => {
-    for (const { name, inputs } of testCases) {
+  describe(`outputs while the predicate function returns true and exits.`, () => {
+    for (const { name, f, inputs } of testCases) {
       describe(name, () => {
-        it(`no currey version`, async () => {
+        it(`no curry version`, async () => {
           const outputs: Array<number> = [];
           await pipeline(
-            takeStreamFactory({ n: n }, Readable.from(inputs())),
+            takeWhileStreamFactory({ f: f }, Readable.from(inputs())),
             new ToArrayStream({ target: outputs }, { objectMode: true }),
           );
           expect(outputs).toEqual(expected);
         });
 
-        it(`currey version`, async () => {
+        it(`curry version`, async () => {
           const outputs: Array<number> = [];
           await pipeline(
-            takeStreamFactory({ n: n })(Readable.from(inputs())),
+            takeWhileStreamFactory({ f: f })(Readable.from(inputs())),
             new ToArrayStream({ target: outputs }, { objectMode: true }),
           );
           expect(outputs).toEqual(expected);
@@ -39,12 +48,12 @@ describe(`takeStreamFactory Test`, () => {
   });
 
   describe(`close source stream when close wrapped stream.`, () => {
-    for (const { name, inputs } of testCases) {
+    for (const { name, f, inputs } of testCases) {
       describe(name, () => {
         it(`no curry version`, async () => {
           const sourceStream = Readable.from(inputs());
           const wrappedStream = Readable.from(
-            takeStreamFactory({ n: n }, sourceStream),
+            takeWhileStreamFactory({ f: f }, sourceStream),
           );
           await sourceStreamCloseTestTemplate(sourceStream, wrappedStream);
         });
@@ -52,7 +61,7 @@ describe(`takeStreamFactory Test`, () => {
         it(`curry version`, async () => {
           const sourceStream = Readable.from(inputs());
           const wrappedStream = Readable.from(
-            takeStreamFactory({ n: n })(sourceStream),
+            takeWhileStreamFactory({ f: f })(sourceStream),
           );
           await sourceStreamCloseTestTemplate(sourceStream, wrappedStream);
         });
