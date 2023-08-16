@@ -1,7 +1,8 @@
-import { PassThrough, Readable } from "node:stream";
+import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { takeWhileStreamFactory } from "./take-while-stream-factory.js";
 import { asyncInputs } from "./test-util/async-inputs.js";
+import { sourceStreamCloseTestTemplate } from "./test-util/source-stream-close-test-template.js";
 import { syncInputs } from "./test-util/sync-inputs.js";
 import { ToArrayStream } from "./to-array-stream.js";
 import { delay } from "./util.js";
@@ -48,59 +49,21 @@ describe(`takeWhileStreamFactory Test`, () => {
 
   describe(`close source stream when close wrapped stream.`, () => {
     for (const { name, f, inputs } of testCases) {
-      const template = async (
-        wrappedStreamFactory: (sourceStream: Readable) => Readable,
-      ): Promise<void> => {
-        let isSourceStreamDone = false;
-        let isWrappedStreamDone = false;
-        const sourceStreamOutputsAfterWrappedStreamDone: Array<number> = [];
-
-        const sourceStream = Readable.from(inputs());
-        sourceStream.on(`data`, (value) => {
-          if (isWrappedStreamDone) {
-            sourceStreamOutputsAfterWrappedStreamDone.push(value);
-          }
-        });
-        const sourceStreamDone = new Promise<void>((resolve) => {
-          sourceStream.on(`close`, () => {
-            isSourceStreamDone = true;
-            resolve();
-          });
-        });
-
-        const wrappedStream = wrappedStreamFactory(sourceStream);
-        const wrappedStreamDone = new Promise<void>((resolve) => {
-          wrappedStream.on(`close`, () => {
-            isWrappedStreamDone = true;
-            resolve();
-          });
-        });
-
-        await pipeline(wrappedStream, new PassThrough({ objectMode: true }));
-        await Promise.all([sourceStreamDone, wrappedStreamDone]);
-
-        expect(isSourceStreamDone).toBeTruthy();
-        expect(isWrappedStreamDone).toBeTruthy();
-        expect(sourceStreamOutputsAfterWrappedStreamDone.length).toEqual(0);
-      };
-
       describe(name, () => {
         it(`no curry version`, async () => {
-          const wrappedStreamFactory = (sourceStream: Readable): Readable => {
-            return Readable.from(
-              takeWhileStreamFactory({ f: f }, sourceStream),
-            );
-          };
-          await template(wrappedStreamFactory);
+          const sourceStream = Readable.from(inputs());
+          const wrappedStream = Readable.from(
+            takeWhileStreamFactory({ f: f }, sourceStream),
+          );
+          await sourceStreamCloseTestTemplate(sourceStream, wrappedStream);
         });
 
         it(`curry version`, async () => {
-          const wrappedStreamFactory = (sourceStream: Readable): Readable => {
-            return Readable.from(
-              takeWhileStreamFactory({ f: f })(sourceStream),
-            );
-          };
-          await template(wrappedStreamFactory);
+          const sourceStream = Readable.from(inputs());
+          const wrappedStream = Readable.from(
+            takeWhileStreamFactory({ f: f })(sourceStream),
+          );
+          await sourceStreamCloseTestTemplate(sourceStream, wrappedStream);
         });
       });
     }
