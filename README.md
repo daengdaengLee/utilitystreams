@@ -167,6 +167,7 @@ Create a wrapper stream that takes only at most n data from the source stream.
 - support curry style
   - `takeStreamFactory({ n: 10 }, sourceStream)` -> `takeStreamFactory({ n: 10 })(sourceStream)`
 - source stream will close automatically after yields n data.
+- it returns async generator that is compatible with readable stream. If you want an exact stream, wrap it with `Readable.from`.
 
 ```typescript
 import { TakeStreamFactory } from "utilitystreams";
