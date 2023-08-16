@@ -1,16 +1,11 @@
 import { PassThrough, Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { takeWhileStreamFactory } from "./take-while-stream-factory.js";
+import { syncInputs } from "./test-util/sync-inputs.js";
 import { ToArrayStream } from "./to-array-stream.js";
 import { delay } from "./util.js";
 
 describe(`takeWhileStreamFactory Test`, () => {
-  function* syncInputs() {
-    for (const n of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
-      yield n;
-    }
-  }
-
   async function* asyncInputs() {
     for (const n of syncInputs()) {
       await delay(50);
