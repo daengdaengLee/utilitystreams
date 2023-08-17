@@ -212,7 +212,7 @@ Create a wrapped stream that yields data from the source stream while the predic
 import { takeWhileStreamFactory } from "utilitystreams";
 
 await pipeline(
-  takeWhilStreamFactory({ f: predicate }, readableStream),
+  takeWhileStreamFactory({ f: predicate }, readableStream),
   // ... other streams
   process.stdout,
 );
@@ -238,11 +238,30 @@ await pipeline(
 );
 ```
 
+### takeUntilStreamFactory
+
+Create a wrapped stream that yields data from the source stream until the predicate function returns true.
+
+- support curry style
+  - `takeUntilStreamFactory({ f: predicate }, sourceStream)` -> `takeUntilStreamFactory({ f: predicate })(sourceStream)`
+- source stream will be closed automatically when wrapped stream is closed.
+- it returns async generator that is compatible with readable stream. If you want an exact stream, wrap it with `Readable.from`.
+
+```typescript
+import { takeUntilStreamFactory } from "utilitystreams";
+
+await pipeline(
+  takeUntilStreamFactory({ f: predicate }, readableStream),
+  // ... other streams
+  process.stdout,
+);
+```
+
 ### TakeUntilStream
 
-Take data until the predicate function returns true.
+Yield data until the predicate function returns true.
 
-- **If the source readable stream is large or infinite, you should prepare some end logic.**
+- **If the source readable stream is large or infinite, you should prepare some end logic or use `takeUntilStreamFactory`. **
   - It's very hard to "end" the stream "pipeline" in the middle.
   - So, I prepare a callback function to do end the source readable stream.
   - You have to prepare some error handling from destroy call or call some custom end logic.
@@ -253,11 +272,7 @@ import { TakeUntilStream } from "utilitystreams";
 await pipeline(
   readableStream,
   // ... other streams
-  new TakeUntilStream({
-    f: (chunk) => {
-      return chunk.signal;
-    },
-  }),
+  new TakeUntilStream({ f: predicate }),
   process.stdout,
 );
 ```
