@@ -6,6 +6,7 @@ export { MapStream } from "./map-stream.js";
 export { TakeStream } from "./take-stream.js";
 export { takeStreamFactory } from "./take-stream-factory.js";
 export { TakeUntilStream } from "./take-until-stream.js";
+export { takeUntilStreamFactory } from "./take-until-stream-factory.js";
 export { TakeWhileStream } from "./take-while-stream.js";
 export { takeWhileStreamFactory } from "./take-while-stream-factory.js";
 export { ThrottleStream } from "./throttle-stream.js";
