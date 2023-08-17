@@ -9,7 +9,7 @@ const asyncPredicate = async (n: number): Promise<boolean> => {
   await delay(100);
   return syncPredicate(n);
 };
-export const expected: Array<number> = [1, 2, 3, 4];
+export const expected = [1, 2, 3, 4];
 export const testCases = [
   { name: `sync data + sync predicate`, f: syncPredicate, inputs: syncInputs },
   {
