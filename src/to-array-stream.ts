@@ -1,33 +1,20 @@
-import { Writable, WritableOptions } from "node:stream";
+import { TransformOptions } from "node:stream";
+import { ReduceStream } from "./reduce-stream.js";
 
-export class ToArrayStream extends Writable {
-  private readonly target: Array<any>;
-  private readonly includeEncoding: boolean;
-
-  constructor(
-    options1?: { target: Array<any>; includeEncoding?: boolean },
-    options2?: WritableOptions,
-  ) {
-    super(options2);
-
-    this.target = options1?.target ?? [];
-    this.includeEncoding = options1?.includeEncoding ?? false;
+export class ToArrayStream<T> extends ReduceStream<Array<T>, T> {
+  constructor(options1?: { target?: Array<T> }, options2?: TransformOptions) {
+    const _options1 = {
+      acc: options1?.target ?? [],
+      f: (acc: Array<T>, cur: T): Array<T> => {
+        acc.push(cur);
+        return acc;
+      },
+      emitLatest: true,
+    };
+    super(_options1, options2);
   }
 
-  _write(
-    chunk: unknown,
-    encoding: BufferEncoding,
-    callback: (error?: Error | null) => void,
-  ) {
-    if (this.includeEncoding) {
-      this.target.push({ chunk: chunk, encoding: encoding });
-    } else {
-      this.target.push(chunk);
-    }
-    callback();
-  }
-
-  toArray(): Array<any> {
-    return this.target;
+  toArray(): Array<T> {
+    return this.getAcc();
   }
 }
