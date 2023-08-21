@@ -1,49 +1,52 @@
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
+import { asyncInputs } from "./test-util/async-inputs.js";
+import { syncInputs } from "./test-util/sync-inputs.js";
 import { ToArrayStream } from "./to-array-stream.js";
 
+const expected = [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]];
+const testCases = [
+  {
+    name: `sync data`,
+    inputs: syncInputs,
+  },
+  {
+    name: `async data`,
+    inputs: asyncInputs,
+  },
+];
+
 describe(`ToArrayStream Test`, () => {
-  it(`put chunks in an array in order.`, async () => {
-    const inputData = [Buffer.from([1]), Buffer.from([2]), Buffer.from([3])];
-    const outputData: Array<Buffer> = [];
-
-    await pipeline(
-      Readable.from(inputData),
-      new ToArrayStream({ target: outputData }),
-    );
-
-    expect(outputData).toEqual(inputData);
-  });
-
-  it(`put chunks with its encoding in an array in order.`, async () => {
-    const inputData = [{ message: "1" }, { message: "2" }, { message: "3" }];
-    const outputData: Array<{ chunk: Buffer; encoding: string }> = [];
-
-    await pipeline(
-      Readable.from(inputData),
-      new ToArrayStream(
-        { target: outputData, includeEncoding: true },
-        { objectMode: true },
-      ),
-    );
-
-    expect(
-      outputData.map((data) => {
-        return data.chunk;
-      }),
-    ).toEqual(inputData);
-    for (const data of outputData) {
-      expect(typeof data.encoding === `string`).toBeTruthy();
+  describe(`put chunks in an array in order.`, () => {
+    for (const { name, inputs } of testCases) {
+      it(name, async () => {
+        const emitted: Array<Array<number>> = [];
+        const reducer = (acc: Array<number>): void => {
+          emitted.push(acc);
+        };
+        const toArrayStream = new ToArrayStream(
+          { target: [] },
+          { objectMode: true },
+        );
+        toArrayStream.on(`data`, reducer);
+        await pipeline(Readable.from(inputs()), toArrayStream);
+        expect(emitted).toEqual(expected);
+        toArrayStream.off(`data`, reducer);
+      });
     }
   });
 
-  it(`the array passed to constructor is the same as the array returned by toArray method.`, async () => {
-    const inputData = [Buffer.from([1]), Buffer.from([2]), Buffer.from([3])];
-    const outputData: Array<Buffer> = [];
-
-    const toArrayStream = new ToArrayStream({ target: outputData });
-    await pipeline(Readable.from(inputData), toArrayStream);
-
-    expect(outputData).toBe(toArrayStream.toArray());
+  describe(`the array passed to constructor is the same as the array returned by toArray method.`, () => {
+    for (const { name, inputs } of testCases) {
+      it(name, async () => {
+        const target: Array<number> = [];
+        const toArrayStream = new ToArrayStream(
+          { target: target },
+          { objectMode: true },
+        );
+        await pipeline(Readable.from(inputs()), toArrayStream);
+        expect(target).toBe(toArrayStream.toArray());
+      });
+    }
   });
 });
