@@ -51,15 +51,17 @@ describe(`ReduceStream Test`, () => {
     for (const { name, inputs, emitLatest, expected } of testCases) {
       it(name, async () => {
         const emitted: Array<Array<number>> = [];
+        const reducer = (acc: Array<number>): void => {
+          emitted.push(acc);
+        };
         const reduceStream = new ReduceStream(
           { f: f, acc: [], emitLatest: emitLatest },
           { objectMode: true },
         );
-        reduceStream.on(`data`, (acc) => {
-          emitted.push(acc);
-        });
+        reduceStream.on(`data`, reducer);
         await pipeline(Readable.from(inputs()), reduceStream);
         expect(emitted).toEqual(expected);
+        reduceStream.off(`data`, reducer);
       });
     }
   });
