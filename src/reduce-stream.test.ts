@@ -20,34 +20,39 @@ const expected = [
   [2, 4, 6, 8, 10],
 ];
 const testCases = [
-  { name: `sync data`, inputs: syncInputs },
-  { name: `async data`, inputs: asyncInputs },
+  {
+    name: `sync data + emit latest (default option)`,
+    inputs: syncInputs,
+    emitLatest: true,
+    expected: [expected.at(-1)],
+  },
+  {
+    name: `sync data + emit each`,
+    inputs: syncInputs,
+    emitLatest: false,
+    expected: expected,
+  },
+  {
+    name: `async data + emit latest (default option)`,
+    inputs: asyncInputs,
+    emitLatest: true,
+    expected: [expected.at(-1)],
+  },
+  {
+    name: `async data + emit each`,
+    inputs: asyncInputs,
+    emitLatest: false,
+    expected: expected,
+  },
 ];
 
 describe(`ReduceStream Test`, () => {
-  describe(`accumulate and emit latest acc. (default)`, () => {
-    for (const { name, inputs } of testCases) {
+  describe(`accumulate values`, () => {
+    for (const { name, inputs, emitLatest, expected } of testCases) {
       it(name, async () => {
         const emitted: Array<Array<number>> = [];
         const reduceStream = new ReduceStream(
-          { f: f, acc: [] },
-          { objectMode: true },
-        );
-        reduceStream.on(`data`, (acc) => {
-          emitted.push(acc);
-        });
-        await pipeline(Readable.from(inputs()), reduceStream);
-        expect(emitted).toEqual([expected.at(-1)]);
-      });
-    }
-  });
-
-  describe(`accumulate and emit each acc.`, () => {
-    for (const { name, inputs } of testCases) {
-      it(name, async () => {
-        const emitted: Array<Array<number>> = [];
-        const reduceStream = new ReduceStream(
-          { f: f, acc: [], emitLatest: false },
+          { f: f, acc: [], emitLatest: emitLatest },
           { objectMode: true },
         );
         reduceStream.on(`data`, (acc) => {
@@ -60,30 +65,15 @@ describe(`ReduceStream Test`, () => {
   });
 
   describe(`get accumulated object by getAcc()`, () => {
-    describe(`emit latest (default)`, () => {
-      for (const { name, inputs } of testCases) {
-        it(name, async () => {
-          const reduceStream = new ReduceStream(
-            { f: f, acc: [] },
-            { objectMode: true },
-          );
-          await pipeline(Readable.from(inputs()), reduceStream);
-          expect(reduceStream.getAcc()).toEqual(expected.at(-1));
-        });
-      }
-    });
-
-    describe(`emit everytime`, () => {
-      for (const { name, inputs } of testCases) {
-        it(name, async () => {
-          const reduceStream = new ReduceStream(
-            { f: f, acc: [], emitLatest: false },
-            { objectMode: true },
-          );
-          await pipeline(Readable.from(inputs()), reduceStream);
-          expect(reduceStream.getAcc()).toEqual(expected.at(-1));
-        });
-      }
-    });
+    for (const { name, inputs, emitLatest, expected } of testCases) {
+      it(name, async () => {
+        const reduceStream = new ReduceStream(
+          { f: f, acc: [], emitLatest: emitLatest },
+          { objectMode: true },
+        );
+        await pipeline(Readable.from(inputs()), reduceStream);
+        expect(reduceStream.getAcc()).toEqual(expected.at(-1));
+      });
+    }
   });
 });
