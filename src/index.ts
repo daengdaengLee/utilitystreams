@@ -3,6 +3,7 @@ export { DebounceStream } from "./debounce-stream.js";
 export { DelayStream } from "./delay-stream.js";
 export { FilterStream } from "./filter-stream.js";
 export { MapStream } from "./map-stream.js";
+export { ReduceStream } from "./reduce-stream.js";
 export { TakeStream } from "./take-stream.js";
 export { takeStreamFactory } from "./take-stream-factory.js";
 export { TakeUntilStream } from "./take-until-stream.js";

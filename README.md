@@ -46,6 +46,23 @@ await pipeline(
 );
 ```
 
+### ReduceStream
+
+Accumulate the input data into the acc object.
+
+```typescript
+import { ReduceStream } from "utilitystreams";
+
+await pipeline(
+  arguments,
+  new ReduceStream(
+    { acc: "", f: (acc, cur) => `${acc} ${cur}` },
+    { objectMode: true },
+  ),
+  process.stdout,
+);
+```
+
 ### ToArrayStream
 
 Collects the input data into an array.
