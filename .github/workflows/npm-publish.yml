@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: node ./script/check-version.mjs ${{ github.ref }}
+      - run: node ./script/check-version.mjs ${{github.ref}}
   publish-npm:
     runs-on: ubuntu-latest
     needs:
@@ -30,6 +30,6 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - run: npm publish --dry-run
-#        env:
-#          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
