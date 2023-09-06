@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org/
+      - name: Test
+        run: |
+          echo ${{ github.ref }} && cat package.json
       - run: npm ci
       - run: npm test
       - run: npm run build
