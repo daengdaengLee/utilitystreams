@@ -8,8 +8,8 @@ on:
 
 jobs:
   # @TODO 테스트 + 빌드 과정까지 문제 없는지 확인하고, 배포 + 다른 곳에서 설치까지 문제 없는지 확인하는 작업 분리
+  #       위 작업 분리한 후 실제 배포 job 에 needs: <확인 작업> 추가해야 함
   publish-npm:
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org/
+      - name: Test
+        run: |
+          echo ${{ github.ref }} && cat package.json
       - run: npm ci
       - run: npm test
       - run: npm run build
