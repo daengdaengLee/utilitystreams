@@ -4,8 +4,7 @@
 name: Node.js Package
 
 on:
-  release:
-    types: [ created ]
+  workflow_dispatch:
 
 jobs:
   # @TODO 테스트 + 빌드 과정까지 문제 없는지 확인하고, 배포 + 다른 곳에서 설치까지 문제 없는지 확인하는 작업 분리
