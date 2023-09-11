@@ -10,5 +10,6 @@ export { TakeUntilStream } from "./take-until-stream.js";
 export { takeUntilStreamFactory } from "./take-until-stream-factory.js";
 export { TakeWhileStream } from "./take-while-stream.js";
 export { takeWhileStreamFactory } from "./take-while-stream-factory.js";
+export { TapStream } from "./tap-stream.js";
 export { ThrottleStream } from "./throttle-stream.js";
 export { ToArrayStream } from "./to-array-stream.js";
