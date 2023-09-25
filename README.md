@@ -293,3 +293,28 @@ await pipeline(
   process.stdout,
 );
 ```
+
+### TapStream
+
+Execute the consumer function with input data.
+
+- If the input data is a promise, it will be resolved before passed into the consumer function.
+- If the output data is a promise, it will be resolved before push the original data (passed to the next stream).
+- No concurrency. If you want a concurrent processing, you should change the input data as a collection of data
+  manually.
+
+```typescript
+import { TapStream } from "utilitystreams";
+
+await pipeline(
+  messages,
+  new TapStream(
+    {
+      f: (message: string) => {
+        log.info(message);
+      },
+    },
+    { objectMode: true },
+  ),
+);
+```
