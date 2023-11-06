@@ -1,12 +1,7 @@
 {
-  "extends": "@tsconfig/node18/tsconfig.json",
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/test-util/**/*"
-  ],
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test.ts", "src/test-util/**/*"],
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
